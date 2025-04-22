@@ -1,8 +1,14 @@
 import { Routes } from '@angular/router';
 import {IngredientsPageComponent} from './pages/ingredients-page/ingredients-page.component';
 import {EffectsPageComponent} from './pages/effects-page/effects-page.component';
+import {MixerPageComponent} from './pages/mixer-page/mixer-page.component';
 
 export const routes: Routes = [
+  {
+    path: "mixer",
+    title: "Schedule 1 - Mixing Tool | Mixer",
+    component: MixerPageComponent
+  },
   {
     path: "ingredients",
     title: "Schedule 1 - Mixing Tool | Ingredients",

@@ -1,0 +1,50 @@
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 64px;
+  padding-bottom: 128px;
+}
+
+.ingredients {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  &__selected-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto auto;
+    max-width: 300px;
+  }
+
+  &__selection {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-gap: 16px;
+  }
+}
+
+.effects {
+  max-width: 300px;
+  &__totals {
+    text-align: right;
+    margin-left: auto;
+    padding: 16px;
+    max-width: 150px;
+  }
+}
+
+.totals {
+  &__total {
+    display: flex;
+    justify-content: space-between;
+    p {
+      padding: 0;
+      margin: 4px 0;
+    }
+  }
+}
+
+.profit {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+}
