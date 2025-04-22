@@ -153,6 +153,9 @@ export class MixerPageComponent implements OnInit {
       }
       return false;
     })
+
+    // Order options by most immediate multiplier increase
+    this.ingredientOptions = this.ingredientOptions.sort((a, b) => b.multiplierDifference - a.multiplierDifference);
   }
 
   /**
