@@ -169,18 +169,17 @@ export class MixerPageComponent implements OnInit {
   })[]) {
     let effects = product.startingEffects.map(e => ({...EffectsDictionary[e], id: e}));
     for (let ingredient of ingredients) {
-      // Apply effect transformers
-      for (let effectTransformer of ingredient.effectTransformers) {
-        // Skip if this effect already exists.
-        if (effects.some(e => e.id === effectTransformer.to)) {
-          continue;
-        }
-
-        const effectIndex = effects.findIndex((e) => e.id === effectTransformer.from);
-        if (effectIndex !== -1) {
-          effects[effectIndex] = {id: effectTransformer.to, ...EffectsDictionary[effectTransformer.to]};
+      let newEffectList: ({id: EffectType} & Effect)[] = [];
+      for(const effect of effects){
+        // If an effect needs to be transformed, transform and add to the new list
+        const effectTransformer = ingredient.effectTransformers.find(et => et.from === effect.id);
+        if(effectTransformer && !effects.some(e => e.id === effectTransformer.to)){
+          newEffectList.push({id: effectTransformer.to, ...EffectsDictionary[effectTransformer.to]});
+        } else {
+          newEffectList.push(effect);
         }
       }
+      effects = newEffectList;
 
       // Attempt to add the ingredient's main effect
       if (effects.length < 8 && !effects.some(e => e.id === ingredient.effect)) {
