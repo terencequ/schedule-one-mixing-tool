@@ -1,0 +1,18 @@
+export enum IngredientType {
+  Cuke,
+  FluMedicine,
+  Gasoline,
+  Donut,
+  EnergyDrink,
+  MouthWash,
+  MotorOil,
+  Banana,
+  Chili,
+  Iodine,
+  Paracetamol,
+  Viagra,
+  HorseSemen,
+  MegaBean,
+  Addy,
+  Battery,
+}

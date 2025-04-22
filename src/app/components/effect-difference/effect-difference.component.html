@@ -1,0 +1,3 @@
+<p [ngStyle]="{
+  color: difference < 0 ? 'var(--mat-sys-error)' : 'var(--mat-sys-primary)'
+}">{{difference >= 0 ? '+' : ''}}{{difference.toFixed(2)}}</p>

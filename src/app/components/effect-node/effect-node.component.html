@@ -1,0 +1,21 @@
+<div class="main">
+  <mat-expansion-panel *ngFor="let effectTransformer of effectIngredientTransformers" (opened)="isExpanded = true" (closed)="isExpanded = false">
+    <mat-expansion-panel-header>
+      <div class="transformer">
+        <p>{{ effectTransformer.sourceIngredient.name }}</p>
+        <effect-chip [effectType]="effectTransformer.from" [includeMultiplier]="true"></effect-chip>
+        <p>></p>
+        <effect-chip [effectType]="effectTransformer.to" [includeMultiplier]="true"></effect-chip>
+        <effect-difference style="padding-left: 32px" [fromEffectType]="effectTransformer.from"
+                           [toEffectType]="effectTransformer.to"></effect-difference>
+      </div>
+    </mat-expansion-panel-header>
+
+    <div *ngIf="isExpanded">
+      <effect-node [effectType]="effectTransformer.from" [depth]="depth + 1" [mode]="mode"></effect-node>
+    </div>
+  </mat-expansion-panel>
+  <p *ngIf="effectIngredientTransformers.length === 0 && isExpanded">
+    No ingredients.
+  </p>
+</div>

@@ -1,0 +1,41 @@
+<div class="main">
+  <div class="table">
+    <table mat-table [dataSource]="ingredients">
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Name</th>
+        <td mat-cell *matCellDef="let ingredient"> {{ingredient.name}} </td>
+      </ng-container>
+      <ng-container matColumnDef="price">
+        <th mat-header-cell *matHeaderCellDef>Price</th>
+        <td mat-cell *matCellDef="let ingredient"> ${{ingredient.price}} </td>
+      </ng-container>
+      <ng-container matColumnDef="effect">
+        <th mat-header-cell *matHeaderCellDef>Effect</th>
+        <td mat-cell *matCellDef="let ingredient"> <effect-chip [effectType]="ingredient.effect"></effect-chip> </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
+      <tr mat-row [class.row--selected]="selectedIngredient === row" (click)="onRowClicked(row)" *matRowDef="let row; columns: columnsToDisplay"></tr>
+    </table>
+  </div>
+
+  <mat-card class="selected" *ngIf="selectedIngredient">
+    <mat-card-header>
+      <div>
+        <h2>{{selectedIngredient.name}}</h2>
+        <effect-chip [effectType]="selectedIngredient.effect" [includeMultiplier]="true"></effect-chip>
+      </div>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="effect-transformers">
+        <div class="effect-transformers__transformer" *ngFor="let effectTransformer of selectedIngredientTransformers">
+          <effect-chip [effectType]="effectTransformer.from" [includeMultiplier]="true"></effect-chip>
+          <p>></p>
+          <effect-chip [effectType]="effectTransformer.to" [includeMultiplier]="true"></effect-chip>
+          <effect-difference style="padding-left: 32px" [fromEffectType]="effectTransformer.from" [toEffectType]="effectTransformer.to"></effect-difference>
+          <p></p>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

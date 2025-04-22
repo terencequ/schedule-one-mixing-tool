@@ -1,0 +1,8 @@
+<div class="main" *ngIf="effect">
+  <p [ngStyle]="{
+    color: effect.color,
+  }">
+    {{ effect.name }}
+  </p>
+  <p *ngIf="includeMultiplier">x{{effect.multiplier.toFixed(2)}}</p>
+</div>
