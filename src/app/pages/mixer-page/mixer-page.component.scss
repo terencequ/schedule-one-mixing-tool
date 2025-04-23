@@ -64,3 +64,28 @@
   bottom: 32px;
   right: 32px;
 }
+
+.save-and-load {
+  margin-top: 32px;
+  display: flex;
+  align-items: flex-end;
+  flex-direction: column;
+  gap: 16px;
+  &__mixes {
+    display: flex;
+    gap: 8px;
+  }
+  &__actions {
+    display: flex;
+    gap: 8px;
+  }
+}
+
+.mix {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  p {
+    margin: 0;
+  }
+}

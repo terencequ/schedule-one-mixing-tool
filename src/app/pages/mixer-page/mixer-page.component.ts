@@ -1,6 +1,5 @@
-import {Component, HostListener, OnInit} from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {Products, ProductsDictionary} from '../../data/products';
-import {MatButtonToggle, MatButtonToggleGroup} from '@angular/material/button-toggle';
 import {NgForOf, NgIf, NgStyle} from '@angular/common';
 import {Product} from '../../models/product';
 import {Ingredient} from '../../models/ingredient';
@@ -11,10 +10,18 @@ import {EffectChipComponent} from '../../components/effect-chip/effect-chip.comp
 import {EffectType} from '../../models/effect-type';
 import {IngredientType} from '../../models/ingredient-type';
 import {ProductType} from '../../models/product-type';
-import {MatCard, MatCardActions, MatCardContent} from '@angular/material/card';
+import {MatCard, MatCardActions, MatCardContent, MatCardHeader} from '@angular/material/card';
 import {MatButton, MatIconButton} from '@angular/material/button';
 import {MatList, MatListItem} from '@angular/material/list';
 import {MatIcon} from '@angular/material/icon';
+import {MatFormField, MatInput, MatLabel} from '@angular/material/input';
+import {Mix} from '../../models/mix';
+import {FormControl, ReactiveFormsModule, Validators} from '@angular/forms';
+import {MatChipEditedEvent, MatChipGrid, MatChipInput, MatChipRemove, MatChipRow} from '@angular/material/chips';
+import {ConfirmDialogComponent, ConfirmDialogData} from '../../components/confirm-dialog/confirm-dialog.component';
+import {MatDialog} from '@angular/material/dialog';
+
+const MIX_LOCAL_STORAGE_KEY = "mixes";
 
 @Component({
   imports: [
@@ -30,12 +37,20 @@ import {MatIcon} from '@angular/material/icon';
     MatIconButton,
     MatIcon,
     NgStyle,
+    MatInput,
+    MatFormField,
+    MatLabel,
+    ReactiveFormsModule,
+    MatCardHeader
   ],
   selector: 'app-mixer-page',
   styleUrl: './mixer-page.component.scss',
   templateUrl: './mixer-page.component.html'
 })
 export class MixerPageComponent implements OnInit {
+  // DI
+  readonly dialog = inject(MatDialog);
+
   // Products
   products = Products;
   selectedProduct: Product & { id: ProductType } = Products[0];
@@ -58,8 +73,38 @@ export class MixerPageComponent implements OnInit {
   currentTotalMultiplier: number = 1;
   currentTotalPrice: number = 0;
 
+  // Mixes loaded from local storage
+  mixes: Mix[] = [];
+  currentMixNameControl = new FormControl<string>("", {nonNullable: true, validators: [Validators.required]});
+
+
+  constructor() {
+    this.loadMixes();
+  }
+
   ngOnInit() {
     this.refresh();
+  }
+
+  /**
+   * Load mixes from local storage.
+   */
+  loadMixes() {
+    const mixesJson = localStorage.getItem(MIX_LOCAL_STORAGE_KEY);
+    if(mixesJson) {
+      this.mixes = JSON.parse(mixesJson);
+    }
+  }
+
+  /**
+   * Save mixes into local storage.
+   */
+  saveMixes() {
+    // Sort mixes alphabetically
+    this.mixes = this.mixes.sort((a, b) => a.name.localeCompare(b.name));
+
+    // Save
+    localStorage.setItem(MIX_LOCAL_STORAGE_KEY, JSON.stringify(this.mixes));
   }
 
   /**
@@ -200,5 +245,53 @@ export class MixerPageComponent implements OnInit {
       totalCost: totalCost
     }
   }
+
+  onSaveMix() {
+    const existingMix = this.mixes.find(m => m.name === this.currentMixNameControl.value);
+    if (existingMix) {
+      existingMix.product = this.selectedProduct;
+      existingMix.ingredients = [...this.selectedIngredients];
+    } else {
+      this.mixes.push({
+        name: this.currentMixNameControl.value,
+        product: this.selectedProduct,
+        ingredients: [...this.selectedIngredients],
+      })
+    }
+
+    // Save
+    this.saveMixes();
+  }
+
+  /**
+   * Load a mix.
+   * @param mix
+   */
+  onLoadMix(mix: Mix) {
+    this.selectedProduct = mix.product;
+    this.selectedIngredients = [...mix.ingredients];
+    this.currentMixNameControl.setValue(mix.name);
+    this.refresh();
+  }
+
+  /**
+   * Remove a mix.
+   * @param mix
+   */
+  onRemoveMix(mix: Mix) {
+    let dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: "Delete "+mix.name,
+        body: `Are you sure you want to delete ${mix.name}?`,
+        confirmLabel: "Delete",
+        cancelLabel: "Cancel",
+        onConfirm: () => {
+          this.mixes.splice(this.mixes.indexOf(mix), 1);
+          this.saveMixes();
+        }
+      } as ConfirmDialogData
+    });
+  }
+
 
 }

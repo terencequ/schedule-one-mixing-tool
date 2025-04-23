@@ -74,7 +74,29 @@
         </div>
         <h4><u>= ${{ currentTotalPrice }} per unit</u></h4>
       </div>
-      <h1 class="profit">Profit = ${{currentTotalPrice - currentTotalCost}}</h1>
+    </div>
+    <div class="save-and-load">
+      <div class="save-and-load__mixes">
+        <mat-card *ngFor="let mix of mixes">
+          <mat-card-content style="padding: 4px">
+            <div class="mix">
+              <button mat-button [ngStyle]="{
+                color: 'var(--mat-sys-on-surface)'
+              }" (click)="onLoadMix(mix)">{{mix.name}}</button>
+              <button mat-icon-button (click)="onRemoveMix(mix)"><mat-icon>delete</mat-icon></button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+      <mat-form-field>
+        <mat-label>Mix Name</mat-label>
+        <input matInput [formControl]="currentMixNameControl">
+      </mat-form-field>
+      <div class="save-and-load__actions">
+        <button mat-stroked-button (click)="onSaveMix()" [disabled]="!currentMixNameControl.valid">Save</button>
+      </div>
     </div>
   </div>
 </div>
+
+<h1 class="profit">Profit = ${{currentTotalPrice - currentTotalCost}}</h1>
