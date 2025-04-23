@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, HostListener, OnInit} from '@angular/core';
 import {Products, ProductsDictionary} from '../../data/products';
 import {MatButtonToggle, MatButtonToggleGroup} from '@angular/material/button-toggle';
 import {NgForOf, NgIf, NgStyle} from '@angular/common';
@@ -69,7 +69,7 @@ export class MixerPageComponent implements OnInit {
    * @param product
    */
   onSelectProduct(product?: ProductType) {
-    if (!product) {
+    if (product === undefined || product === null) {
       return;
     }
     this.selectedProduct = {id: product, ...ProductsDictionary[product]};

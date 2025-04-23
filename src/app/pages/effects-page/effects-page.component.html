@@ -1,6 +1,6 @@
 <div class="main">
   <div class="table">
-    <table mat-table [dataSource]="effects">
+    <table mat-table [dataSource]="effects" *ngIf="!shouldHideListWhenSelected || !selectedEffect">
       <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef>Name</th>
         <td mat-cell *matCellDef="let effect"> <p [style.color]="effect.color">{{effect.name}}</p> </td>
@@ -14,6 +14,11 @@
       <tr mat-row [class.row--selected]="selectedEffect === row" (click)="onRowClicked(row)" *matRowDef="let row; columns: columnsToDisplay"></tr>
     </table>
   </div>
+
+  <div *ngIf="selectedEffect">
+    <div class="actions">
+      <button mat-icon-button (click)="onClearSelection()"><mat-icon>arrow_back</mat-icon></button>
+    </div>
   <mat-card class="selected" *ngIf="selectedEffect">
     <mat-card-header>
       <div>
@@ -32,4 +37,5 @@
       </div>
     </mat-card-content>
   </mat-card>
+  </div>
 </div>

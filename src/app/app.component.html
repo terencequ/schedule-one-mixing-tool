@@ -1,5 +1,17 @@
+<mat-toolbar class="header">
+  <button mat-icon-button [matMenuTriggerFor]="menu" *ngIf="navIsPhone">
+    <mat-icon>menu</mat-icon>
+  </button>
+  <mat-menu #menu="matMenu">
+    <button mat-menu-item [routerLink]="'mixer'">Mixer</button>
+    <button mat-menu-item [routerLink]="'ingredients'">Ingredients</button>
+    <button mat-menu-item [routerLink]="'effects'">Effects</button>
+  </mat-menu>
+
+  <span>Schedule 1 Mixing tool</span>
+</mat-toolbar>
 <mat-sidenav-container class="main">
-  <mat-sidenav mode="side" opened class="main__side-nav">
+  <mat-sidenav mode="side" [opened]="!navIsPhone" class="main__side-nav">
     <mat-nav-list>
       <a mat-list-item [routerLink]="'mixer'">Mixer</a>
       <a mat-list-item [routerLink]="'ingredients'">Ingredients</a>
@@ -7,7 +19,6 @@
     </mat-nav-list>
   </mat-sidenav>
   <mat-sidenav-content class="main__side-nav-content">
-    <h1>Schedule 1 - Mixing Tool</h1>
     <router-outlet></router-outlet>
   </mat-sidenav-content>
 </mat-sidenav-container>

@@ -1,5 +1,5 @@
 <div class="main">
-  <div class="table">
+  <div class="table" *ngIf="!shouldHideListWhenSelected || !selectedIngredient">
     <table mat-table [dataSource]="ingredients">
       <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef>Name</th>
@@ -19,23 +19,32 @@
     </table>
   </div>
 
-  <mat-card class="selected" *ngIf="selectedIngredient">
-    <mat-card-header>
-      <div>
-        <h2>{{selectedIngredient.name}}</h2>
-        <effect-chip [effectType]="selectedIngredient.effect" [includeMultiplier]="true"></effect-chip>
-      </div>
-    </mat-card-header>
-    <mat-card-content>
-      <div class="effect-transformers">
-        <div class="effect-transformers__transformer" *ngFor="let effectTransformer of selectedIngredientTransformers">
-          <effect-chip [effectType]="effectTransformer.from" [includeMultiplier]="true"></effect-chip>
-          <p>></p>
-          <effect-chip [effectType]="effectTransformer.to" [includeMultiplier]="true"></effect-chip>
-          <effect-difference style="padding-left: 32px" [fromEffectType]="effectTransformer.from" [toEffectType]="effectTransformer.to"></effect-difference>
-          <p></p>
+  <div *ngIf="selectedIngredient">
+    <div class="actions">
+      <button mat-icon-button (click)="onClearSelection()"><mat-icon>arrow_back</mat-icon></button>
+    </div>
+    <mat-card class="selected">
+      <mat-card-header>
+        <mat-card-title style="width: 100%">
+          <h2>{{selectedIngredient.name}}</h2>
+        </mat-card-title>
+        <mat-card-subtitle>
+          <effect-chip [effectType]="selectedIngredient.effect" [includeMultiplier]="true"></effect-chip>
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="effect-transformers">
+          <div class="effect-transformers__transformer" *ngFor="let effectTransformer of selectedIngredientTransformers">
+            <effect-chip [effectType]="effectTransformer.from" [includeMultiplier]="true"></effect-chip>
+            <p>></p>
+            <effect-chip [effectType]="effectTransformer.to" [includeMultiplier]="true"></effect-chip>
+            <effect-difference style="padding-left: 32px" [fromEffectType]="effectTransformer.from" [toEffectType]="effectTransformer.to"></effect-difference>
+            <p></p>
+          </div>
         </div>
-      </div>
-    </mat-card-content>
-  </mat-card>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
 </div>

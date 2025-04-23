@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, HostListener} from '@angular/core';
 import {EffectChipComponent} from '../../components/effect-chip/effect-chip.component';
 import {
   MatCell,
@@ -15,10 +15,12 @@ import {EffectType} from '../../models/effect-type';
 import {IngredientType} from '../../models/ingredient-type';
 import {Ingredient} from '../../models/ingredient';
 import {Ingredients} from '../../data/ingredients';
-import {EffectDifferenceComponent} from '../../components/effect-difference/effect-difference.component';
 import {MatCard, MatCardContent, MatCardHeader} from '@angular/material/card';
-import {NgForOf, NgIf} from '@angular/common';
+import {NgIf} from '@angular/common';
 import {EffectNodeComponent} from '../../components/effect-node/effect-node.component';
+import {ActivatedRoute, Router} from '@angular/router';
+import {MatIconButton} from '@angular/material/button';
+import {MatIcon} from '@angular/material/icon';
 
 @Component({
   selector: 'app-effects-page',
@@ -37,7 +39,9 @@ import {EffectNodeComponent} from '../../components/effect-node/effect-node.comp
     MatCardContent,
     MatCardHeader,
     NgIf,
-    EffectNodeComponent
+    EffectNodeComponent,
+    MatIcon,
+    MatIconButton,
   ],
   templateUrl: './effects-page.component.html',
   styleUrl: './effects-page.component.scss'
@@ -49,10 +53,37 @@ export class EffectsPageComponent {
   protected selectedEffect?: Effect & {id: EffectType};
   protected selectedEffectIngredientTransformers: { source: IngredientType, sourceIngredient: Ingredient, from: EffectType, fromEffect: Effect, to: EffectType, toEffect: Effect, multiplierDifference: number }[] = [];
 
-  onRowClicked(row: Effect & {id: EffectType}) {
-    this.selectedEffect = row;
+  protected shouldHideListWhenSelected: boolean = false;
+
+  constructor(private route: ActivatedRoute, private router: Router) {
+    this.route.queryParams.subscribe(params => {
+      if(params['id']){
+        const id = Number(params['id']) as EffectType;
+        this.refresh(id);
+      }
+    })
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize() {
+    this.shouldHideListWhenSelected = window.innerWidth <= 1500;
+  }
+
+  async onRowClicked(row: Effect & {id: EffectType}) {
+    await this.router.navigate([], {queryParams: {id: row.id}});
+    this.refresh(row.id);
+  }
+
+  async onClearSelection() {
+    await this.router.navigate([], {queryParams: {}});
+    this.selectedEffect = undefined;
+    this.selectedEffectIngredientTransformers = [];
+  }
+
+  refresh(id: EffectType) {
+    this.selectedEffect = {id: id, ...EffectsDictionary[id]};
     this.selectedEffectIngredientTransformers = Ingredients.flatMap(i => {
-      const relevantEffectTransformers = i.effectTransformers.filter(t => t.to === row.id);
+      const relevantEffectTransformers = i.effectTransformers.filter(t => t.to === this.selectedEffect?.id);
       return relevantEffectTransformers.map(t => ({
         source: i.id,
         sourceIngredient: i,

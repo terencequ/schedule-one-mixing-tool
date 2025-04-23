@@ -1,8 +1,25 @@
 .main {
-  display: flex;
-  flex-direction: column;
-  gap: 64px;
+  @media(width <= 1500px){
+    display: flex;
+    flex-direction: column;
+    gap: 64px;
+  }
+
+  @media(width > 1500px){
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 64px;
+  }
+
   padding-bottom: 128px;
+}
+
+.products {
+  &__selection {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
 }
 
 .ingredients {
@@ -23,7 +40,6 @@
 }
 
 .effects {
-  max-width: 300px;
   &__totals {
     text-align: right;
     margin-left: auto;
