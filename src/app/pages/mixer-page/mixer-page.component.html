@@ -82,7 +82,7 @@
             <div class="mix">
               <button mat-button [ngStyle]="{
                 color: 'var(--mat-sys-on-surface)'
-              }" (click)="onLoadMix(mix)">{{mix.name}}</button>
+              }" (click)="onLoadMix(mix)">{{mix.name}} ({{mix.product.name}})</button>
               <button mat-icon-button (click)="onRemoveMix(mix)"><mat-icon>delete</mat-icon></button>
             </div>
           </mat-card-content>
