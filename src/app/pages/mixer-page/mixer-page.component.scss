@@ -1,4 +1,6 @@
 .main {
+  padding-bottom: 128px;
+
   @media(width <= 1500px){
     display: flex;
     flex-direction: column;
@@ -10,8 +12,6 @@
     grid-template-columns: auto 1fr;
     gap: 64px;
   }
-
-  padding-bottom: 128px;
 }
 
 .products {

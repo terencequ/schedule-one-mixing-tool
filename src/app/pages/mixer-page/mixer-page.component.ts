@@ -18,8 +18,6 @@ import {MatIcon} from '@angular/material/icon';
 
 @Component({
   imports: [
-    MatButtonToggleGroup,
-    MatButtonToggle,
     NgForOf,
     EffectChipComponent,
     NgIf,
