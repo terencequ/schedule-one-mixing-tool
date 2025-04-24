@@ -39,25 +39,6 @@
   }
 }
 
-.effects {
-  &__totals {
-    text-align: right;
-    margin-left: auto;
-    padding: 16px;
-    max-width: 150px;
-  }
-}
-
-.totals {
-  &__total {
-    display: flex;
-    justify-content: space-between;
-    p {
-      padding: 0;
-      margin: 4px 0;
-    }
-  }
-}
 
 .profit {
   position: fixed;

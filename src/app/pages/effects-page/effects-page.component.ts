@@ -10,7 +10,7 @@ import {
   MatRow, MatRowDef, MatTable
 } from '@angular/material/table';
 import {Effects, EffectsDictionary} from '../../data/effects';
-import {Effect} from '../../models/effect';
+import {Effect, EffectWithId} from '../../models/effect';
 import {EffectType} from '../../models/effect-type';
 import {IngredientType} from '../../models/ingredient-type';
 import {Ingredient} from '../../models/ingredient';
@@ -48,14 +48,15 @@ import {MatIcon} from '@angular/material/icon';
 })
 export class EffectsPageComponent {
   protected readonly columnsToDisplay: string[] = ['name', 'multiplier'];
-  protected readonly effects: (Effect & {id: EffectType})[] = Effects;
+  protected readonly effects: EffectWithId[] = Effects;
 
-  protected selectedEffect?: Effect & {id: EffectType};
+  protected selectedEffect?: EffectWithId;
   protected selectedEffectIngredientTransformers: { source: IngredientType, sourceIngredient: Ingredient, from: EffectType, fromEffect: Effect, to: EffectType, toEffect: Effect, multiplierDifference: number }[] = [];
 
   protected shouldHideListWhenSelected: boolean = false;
 
   constructor(private route: ActivatedRoute, private router: Router) {
+    this.onResize();
     this.route.queryParams.subscribe(params => {
       if(params['id']){
         const id = Number(params['id']) as EffectType;
@@ -69,7 +70,7 @@ export class EffectsPageComponent {
     this.shouldHideListWhenSelected = window.innerWidth <= 1500;
   }
 
-  async onRowClicked(row: Effect & {id: EffectType}) {
+  async onRowClicked(row: EffectWithId) {
     await this.router.navigate([], {queryParams: {id: row.id}});
     this.refresh(row.id);
   }

@@ -1,5 +1,5 @@
 import {EffectType} from '../models/effect-type';
-import {Effect} from '../models/effect';
+import {Effect, EffectWithId} from '../models/effect';
 import {IngredientType} from '../models/ingredient-type';
 import {IngredientsDictionary} from './ingredients';
 
@@ -176,7 +176,7 @@ export const EffectsDictionary: { [key in EffectType]: Effect } = {
     color: "rgb(113, 171, 93)"
   }
 }
-export function getEffects() {
+export function getEffects(): EffectWithId[] {
   const effectTypes = Object.keys(EffectsDictionary);
   return effectTypes.map(typeStr => {
     const type = Number(typeStr) as EffectType;

@@ -47,34 +47,7 @@
   </div>
 
   <div>
-    <div class="effects">
-      <h3>Effects</h3>
-      <p *ngIf="currentEffects.length === 0">No additional effects.</p>
-      <mat-card *ngIf="currentEffects.length !== 0">
-        <mat-card-content>
-          <effect-chip *ngFor="let effect of currentEffects" [effectType]="effect.id"
-                       [includeMultiplier]="true"></effect-chip>
-        </mat-card-content>
-      </mat-card>
-      <div class="effects__totals">
-        <div class="totals__total">
-          <p>Total Ingredients:</p>
-          <p>{{ selectedIngredients.length }}</p>
-        </div>
-        <h4><u>= ${{ currentTotalCost }} per unit</u></h4>
-      </div>
-      <div class="effects__totals">
-        <div class="totals__total">
-          <p>Starting Price: </p>
-          <p>${{ currentStartingPrice }}</p>
-        </div>
-        <div class="totals__total">
-          <p>Multiplier:</p>
-          <p>x{{ currentTotalMultiplier.toFixed(2) }}</p>
-        </div>
-        <h4><u>= ${{ currentTotalPrice }} per unit</u></h4>
-      </div>
-    </div>
+    <mix-result *ngIf="currentMixResult" [mixResult]="currentMixResult"></mix-result>
     <div class="save-and-load">
       <div class="save-and-load__mixes">
         <mat-card *ngFor="let mix of mixes">
@@ -99,4 +72,4 @@
   </div>
 </div>
 
-<h1 class="profit">Profit = ${{currentTotalPrice - currentTotalCost}}</h1>
+<h1 class="profit">Profit = ${{currentMixResult?.totalProfit ?? 0}}</h1>

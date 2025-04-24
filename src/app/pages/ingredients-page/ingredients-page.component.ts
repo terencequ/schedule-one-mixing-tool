@@ -1,7 +1,7 @@
 import {Component, HostListener} from '@angular/core';
 import {Ingredients, IngredientsDictionary} from '../../data/ingredients';
 import {NgForOf, NgIf} from '@angular/common';
-import {Ingredient} from '../../models/ingredient';
+import {Ingredient, IngredientWithId} from '../../models/ingredient';
 import {MatIconButton} from '@angular/material/button';
 import {
   MatCell,
@@ -21,7 +21,7 @@ import {
   MatCardTitle
 } from '@angular/material/card';
 import {EffectDifferenceComponent} from '../../components/effect-difference/effect-difference.component';
-import {Effect} from '../../models/effect';
+import {Effect, EffectWithId} from '../../models/effect';
 import {EffectType} from '../../models/effect-type';
 import {EffectsDictionary} from '../../data/effects';
 import {IngredientType} from '../../models/ingredient-type';
@@ -61,12 +61,13 @@ export class IngredientsPageComponent {
   protected readonly columnsToDisplay: string[] = ['name', 'price', 'effect'];
   protected readonly ingredients: Ingredient[] = Ingredients;
 
-  protected selectedIngredient?: Ingredient & {id: IngredientType};
+  protected selectedIngredient?: IngredientWithId;
   protected selectedIngredientTransformers: { from: EffectType, fromEffect: Effect, to: EffectType, toEffect: Effect, multiplierDifference: number }[] = [];
 
   protected shouldHideListWhenSelected: boolean = false;
 
   constructor(private route: ActivatedRoute, private router: Router) {
+    this.onResize();
     this.route.queryParams.subscribe(params => {
       if(params['id']){
         const id = Number(params['id']) as IngredientType;
@@ -80,7 +81,7 @@ export class IngredientsPageComponent {
     this.shouldHideListWhenSelected = window.innerWidth <= 1500;
   }
 
-  async onRowClicked(row: Effect & {id: IngredientType}) {
+  async onRowClicked(row: IngredientWithId) {
     await this.router.navigate([], {queryParams: {id: row.id}});
     this.refresh(row.id);
   }
@@ -92,7 +93,7 @@ export class IngredientsPageComponent {
   }
 
   refresh(id: IngredientType){
-    this.selectedIngredient = {id: id, ...IngredientsDictionary[id]};;
+    this.selectedIngredient = {id: id, ...IngredientsDictionary[id]};
     this.selectedIngredientTransformers = this.selectedIngredient!.effectTransformers.map(t => ({
       from: t.from,
       to: t.to,

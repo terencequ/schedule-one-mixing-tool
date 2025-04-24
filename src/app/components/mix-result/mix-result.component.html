@@ -1,0 +1,31 @@
+<div class="main" *ngIf="mixResult">
+  <h3>Effects</h3>
+  <p *ngIf="mixResult.effects.length === 0">No additional effects.</p>
+  <mat-card *ngIf="mixResult.effects.length !== 0">
+    <mat-card-content>
+      <effect-chip *ngFor="let effect of mixResult.effects" [effectType]="effect.id"
+                   [includeMultiplier]="true"></effect-chip>
+    </mat-card-content>
+  </mat-card>
+  <div class="main__totals">
+    <div class="totals__total">
+      <p>Total Ingredients:</p>
+      <p>{{ mixResult.ingredients.length }}</p>
+    </div>
+    <h4><u>= ${{ mixResult.totalCost }} per unit</u></h4>
+  </div>
+  <div class="main__totals">
+    <div class="totals__total">
+      <p>Starting Price: </p>
+      <p>${{ mixResult.product.basePrice }}</p>
+    </div>
+    <div class="totals__total">
+      <p>Multiplier:</p>
+      <p>x{{ mixResult.totalMultiplier.toFixed(2) }}</p>
+    </div>
+    <h4><u>= ${{ mixResult.totalRevenue }} per unit</u></h4>
+  </div>
+</div>
+<p *ngIf="!mixResult">
+  No result.
+</p>

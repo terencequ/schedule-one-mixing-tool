@@ -2,31 +2,29 @@ import {Component, inject, OnInit} from '@angular/core';
 import {Products, ProductsDictionary} from '../../data/products';
 import {NgForOf, NgIf, NgStyle} from '@angular/common';
 import {Product} from '../../models/product';
-import {Ingredient} from '../../models/ingredient';
-import {Effect} from '../../models/effect';
-import {EffectsDictionary} from '../../data/effects';
+import {Ingredient, IngredientWithId} from '../../models/ingredient';
+import {EffectWithId} from '../../models/effect';
 import {Ingredients} from '../../data/ingredients';
-import {EffectChipComponent} from '../../components/effect-chip/effect-chip.component';
-import {EffectType} from '../../models/effect-type';
 import {IngredientType} from '../../models/ingredient-type';
 import {ProductType} from '../../models/product-type';
-import {MatCard, MatCardActions, MatCardContent, MatCardHeader} from '@angular/material/card';
+import {MatCard, MatCardActions, MatCardContent} from '@angular/material/card';
 import {MatButton, MatIconButton} from '@angular/material/button';
 import {MatList, MatListItem} from '@angular/material/list';
 import {MatIcon} from '@angular/material/icon';
 import {MatFormField, MatInput, MatLabel} from '@angular/material/input';
 import {Mix} from '../../models/mix';
 import {FormControl, ReactiveFormsModule, Validators} from '@angular/forms';
-import {MatChipEditedEvent, MatChipGrid, MatChipInput, MatChipRemove, MatChipRow} from '@angular/material/chips';
 import {ConfirmDialogComponent, ConfirmDialogData} from '../../components/confirm-dialog/confirm-dialog.component';
 import {MatDialog} from '@angular/material/dialog';
+import {calculateEffectsAndPrice} from '../../helpers/mix-helper';
+import {MixResult} from '../../models/mix-result';
+import {MixResultComponent} from '../../components/mix-result/mix-result.component';
 
 const MIX_LOCAL_STORAGE_KEY = "mixes";
 
 @Component({
   imports: [
     NgForOf,
-    EffectChipComponent,
     NgIf,
     MatCard,
     MatCardContent,
@@ -41,7 +39,7 @@ const MIX_LOCAL_STORAGE_KEY = "mixes";
     MatFormField,
     MatLabel,
     ReactiveFormsModule,
-    MatCardHeader
+    MixResultComponent,
   ],
   selector: 'app-mixer-page',
   styleUrl: './mixer-page.component.scss',
@@ -57,21 +55,15 @@ export class MixerPageComponent implements OnInit {
 
   // Ingredients
   ingredients = Ingredients;
-  selectedIngredients: (Ingredient & { id: IngredientType })[] = [];
+  selectedIngredients: IngredientWithId[] = [];
   ingredientOptions: {
-    ingredient: (Ingredient & { id: IngredientType }),
-    effects: (Effect & { id: EffectType })[],
+    ingredient: IngredientWithId,
+    effects: EffectWithId[],
     multiplierDifference: number
   } [] = []
 
-  // Effects
-  currentEffects: (Effect & { id: EffectType })[] = [];
-
-  // Pricing
-  currentTotalCost: number = 0;
-  currentStartingPrice: number = 0;
-  currentTotalMultiplier: number = 1;
-  currentTotalPrice: number = 0;
+  // Calculated mix result
+  currentMixResult?: MixResult;
 
   // Mixes loaded from local storage
   mixes: Mix[] = [];
@@ -167,30 +159,26 @@ export class MixerPageComponent implements OnInit {
    */
   refresh() {
     // Update the effects and pricing
-    const res = this.calculateEffectsAndPrice(this.selectedProduct, this.selectedIngredients);
-    this.currentEffects = res.effects
-    this.currentStartingPrice = res.startingPrice;
-    this.currentTotalMultiplier = res.totalMultiplier;
-    this.currentTotalPrice = res.totalPrice;
-    this.currentTotalCost = res.totalCost;
+    const res = calculateEffectsAndPrice(this.selectedProduct, this.selectedIngredients);
+    this.currentMixResult = res;
 
     // Update the ingredient selection list details
     this.ingredientOptions = this.ingredients.map(i => {
-      const optionRes = this.calculateEffectsAndPrice(this.selectedProduct, [...this.selectedIngredients, i])
+      const optionRes = calculateEffectsAndPrice(this.selectedProduct, [...this.selectedIngredients, i])
       return {
         ingredient: i,
         effects: optionRes.effects,
-        multiplierDifference: Number((optionRes.totalMultiplier - this.currentTotalMultiplier).toFixed(2)),
+        multiplierDifference: Number((optionRes.totalMultiplier - res.totalMultiplier).toFixed(2)),
       }
     })
 
     // Filter options where the effect list is different
     this.ingredientOptions = this.ingredientOptions.filter(o => {
-      if (o.effects.length !== this.currentEffects.length) {
+      if (o.effects.length !== res.effects.length) {
         return true;
       }
       for (let i = 0; i < o.effects.length; i++) {
-        if (o.effects[i].id !== this.currentEffects[i].id) {
+        if (o.effects[i].id !== res.effects[i].id) {
           return true;
         }
       }
@@ -199,51 +187,6 @@ export class MixerPageComponent implements OnInit {
 
     // Order options by most immediate multiplier increase
     this.ingredientOptions = this.ingredientOptions.sort((a, b) => b.multiplierDifference - a.multiplierDifference);
-  }
-
-  /**
-   * Calculate an effects list based on a starting product and a list of ingredients.
-   * @param product
-   * @param ingredients
-   * @private
-   */
-  private calculateEffectsAndPrice(product: Product & { id: ProductType }, ingredients: (Ingredient & {
-    id: IngredientType
-  })[]) {
-    let effects = product.startingEffects.map(e => ({...EffectsDictionary[e], id: e}));
-    for (let ingredient of ingredients) {
-      let newEffectList: ({id: EffectType} & Effect)[] = [];
-      for(const effect of effects){
-        // If an effect needs to be transformed, transform and add to the new list
-        const effectTransformer = ingredient.effectTransformers.find(et => et.from === effect.id);
-        if(effectTransformer && !effects.some(e => e.id === effectTransformer.to)){
-          newEffectList.push({id: effectTransformer.to, ...EffectsDictionary[effectTransformer.to]});
-        } else {
-          newEffectList.push(effect);
-        }
-      }
-      effects = newEffectList;
-
-      // Attempt to add the ingredient's main effect
-      if (effects.length < 8 && !effects.some(e => e.id === ingredient.effect)) {
-        effects.push({id: ingredient.effect, ...EffectsDictionary[ingredient.effect]});
-      }
-    }
-
-    // Update the pricing
-    let startingPrice = product.basePrice;
-    let totalMultiplier = Number((effects.reduce((sum, effect) => sum + effect.multiplier, 1)).toFixed(2));
-    let totalPrice = Number((totalMultiplier * startingPrice).toFixed(0));
-
-    let totalCost = ingredients.reduce((sum, ingredient) => sum + ingredient.price, 0)
-
-    return {
-      effects: effects,
-      startingPrice: startingPrice,
-      totalMultiplier: totalMultiplier,
-      totalPrice: totalPrice,
-      totalCost: totalCost
-    }
   }
 
   onSaveMix() {
@@ -279,7 +222,7 @@ export class MixerPageComponent implements OnInit {
    * @param mix
    */
   onRemoveMix(mix: Mix) {
-    let dialogRef = this.dialog.open(ConfirmDialogComponent, {
+    this.dialog.open(ConfirmDialogComponent, {
       data: {
         title: "Delete "+mix.name,
         body: `Are you sure you want to delete ${mix.name}?`,
