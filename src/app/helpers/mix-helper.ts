@@ -1,8 +1,7 @@
 import {ProductWithId} from '../models/product';
 import {IngredientWithId} from '../models/ingredient';
 import {EffectsDictionary} from '../data/effects';
-import {EffectType} from '../models/effect-type';
-import {Effect} from '../models/effect';
+import {EffectWithId} from '../models/effect';
 import {MixResult} from '../models/mix-result';
 
 /**
@@ -14,12 +13,12 @@ import {MixResult} from '../models/mix-result';
 export function calculateEffectsAndPrice(product: ProductWithId, ingredients: IngredientWithId[]): MixResult {
   let effects = product.startingEffects.map(e => ({...EffectsDictionary[e], id: e}));
   for (let ingredient of ingredients) {
-    let newEffectList: ({id: EffectType} & Effect)[] = [];
+    let newEffectList: EffectWithId[] = [];
     for(const effect of effects){
       // If an effect needs to be transformed, transform and add to the new list
-      const effectTransformer = ingredient.effectTransformers.find(et => et.from === effect.id);
-      if(effectTransformer && !effects.some(e => e.id === effectTransformer.to)){
-        newEffectList.push({id: effectTransformer.to, ...EffectsDictionary[effectTransformer.to]});
+      const effectResult = ingredient.effectTransformers[effect.id]
+      if(effectResult && !effects.some(e => e.id === effectResult)){
+        newEffectList.push({id: effectResult, ...EffectsDictionary[effectResult]});
       } else {
         newEffectList.push(effect);
       }

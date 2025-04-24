@@ -27,6 +27,7 @@ import {EffectsDictionary} from '../../data/effects';
 import {IngredientType} from '../../models/ingredient-type';
 import {ActivatedRoute, Router} from '@angular/router';
 import {MatIcon} from '@angular/material/icon';
+import {getEffectTransformerDictionaryAsArray} from '../../helpers/effect-transformer-helper';
 
 
 @Component({
@@ -94,7 +95,7 @@ export class IngredientsPageComponent {
 
   refresh(id: IngredientType){
     this.selectedIngredient = {id: id, ...IngredientsDictionary[id]};
-    this.selectedIngredientTransformers = this.selectedIngredient!.effectTransformers.map(t => ({
+    this.selectedIngredientTransformers = getEffectTransformerDictionaryAsArray(this.selectedIngredient!.effectTransformers).map(t => ({
       from: t.from,
       to: t.to,
       fromEffect: EffectsDictionary[t.from],

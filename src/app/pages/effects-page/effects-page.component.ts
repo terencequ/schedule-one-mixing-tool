@@ -21,6 +21,7 @@ import {EffectNodeComponent} from '../../components/effect-node/effect-node.comp
 import {ActivatedRoute, Router} from '@angular/router';
 import {MatIconButton} from '@angular/material/button';
 import {MatIcon} from '@angular/material/icon';
+import {getEffectTransformerDictionaryAsArray} from '../../helpers/effect-transformer-helper';
 
 @Component({
   selector: 'app-effects-page',
@@ -84,7 +85,7 @@ export class EffectsPageComponent {
   refresh(id: EffectType) {
     this.selectedEffect = {id: id, ...EffectsDictionary[id]};
     this.selectedEffectIngredientTransformers = Ingredients.flatMap(i => {
-      const relevantEffectTransformers = i.effectTransformers.filter(t => t.to === this.selectedEffect?.id);
+      const relevantEffectTransformers = getEffectTransformerDictionaryAsArray(i.effectTransformers).filter(t => t.to === this.selectedEffect?.id);
       return relevantEffectTransformers.map(t => ({
         source: i.id,
         sourceIngredient: i,

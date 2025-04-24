@@ -6,7 +6,7 @@ import {IngredientType} from './ingredient-type';
 export interface Ingredient {
   name: string;
   effect: EffectType;
-  effectTransformers: {from: EffectType, to: EffectType}[];
+  effectTransformers: {[from in EffectType]?: EffectType};
   price: number;
   level: LevelType;
 }

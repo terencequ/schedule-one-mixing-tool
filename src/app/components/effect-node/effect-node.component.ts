@@ -9,6 +9,7 @@ import {EffectChipComponent} from '../effect-chip/effect-chip.component';
 import {EffectDifferenceComponent} from '../effect-difference/effect-difference.component';
 import {NgForOf, NgIf} from '@angular/common';
 import {MatExpansionPanel, MatExpansionPanelHeader} from '@angular/material/expansion';
+import {getEffectTransformerDictionaryAsArray} from '../../helpers/effect-transformer-helper';
 
 interface EffectIngredientTransformer {
   source: IngredientType,
@@ -55,7 +56,7 @@ export class EffectNodeComponent implements OnChanges {
 
       // Load effect transformers
       this.effectIngredientTransformers = Ingredients.flatMap(i => {
-        const relevantEffectTransformers = i.effectTransformers
+        const relevantEffectTransformers = getEffectTransformerDictionaryAsArray(i.effectTransformers)
           .filter(t => t[this.mode] === this.effectType);
         return relevantEffectTransformers.map(t => ({
           source: i.id,

@@ -2,10 +2,9 @@ import {Component, inject, OnInit} from '@angular/core';
 import {Products, ProductsDictionary} from '../../data/products';
 import {NgForOf, NgIf, NgStyle} from '@angular/common';
 import {Product} from '../../models/product';
-import {Ingredient, IngredientWithId} from '../../models/ingredient';
+import {IngredientWithId} from '../../models/ingredient';
 import {EffectWithId} from '../../models/effect';
 import {Ingredients} from '../../data/ingredients';
-import {IngredientType} from '../../models/ingredient-type';
 import {ProductType} from '../../models/product-type';
 import {MatCard, MatCardActions, MatCardContent} from '@angular/material/card';
 import {MatButton, MatIconButton} from '@angular/material/button';
@@ -115,7 +114,7 @@ export class MixerPageComponent implements OnInit {
    * Add a new ingredient to the bottom of the list.
    * @param ingredient
    */
-  onIngredientAdd(ingredient: (Ingredient & { id: IngredientType })) {
+  onIngredientAdd(ingredient: IngredientWithId) {
     this.selectedIngredients.push(ingredient);
     this.refresh();
   }
@@ -125,7 +124,7 @@ export class MixerPageComponent implements OnInit {
    * @param ingredient
    * @param i
    */
-  onIngredientMoveUp(ingredient: Ingredient & { id: IngredientType }, i: number) {
+  onIngredientMoveUp(ingredient: IngredientWithId, i: number) {
     const temp = this.selectedIngredients[i];
     this.selectedIngredients[i] = this.selectedIngredients[i - 1];
     this.selectedIngredients[i - 1] = temp;
@@ -137,7 +136,7 @@ export class MixerPageComponent implements OnInit {
    * @param ingredient
    * @param i
    */
-  onIngredientMoveDown(ingredient: Ingredient & { id: IngredientType }, i: number) {
+  onIngredientMoveDown(ingredient: IngredientWithId, i: number) {
     const temp = this.selectedIngredients[i];
     this.selectedIngredients[i] = this.selectedIngredients[i + 1];
     this.selectedIngredients[i + 1] = temp;
@@ -149,7 +148,7 @@ export class MixerPageComponent implements OnInit {
    * @param ingredient
    * @param i
    */
-  onIngredientDelete(ingredient: Ingredient & { id: IngredientType }, i: number) {
+  onIngredientDelete(ingredient: IngredientWithId, i: number) {
     this.selectedIngredients.splice(i, 1);
     this.refresh();
   }
