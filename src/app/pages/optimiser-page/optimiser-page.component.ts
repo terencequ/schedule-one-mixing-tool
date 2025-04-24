@@ -73,7 +73,11 @@ export class OptimiserPageComponent {
   leastIngredientsMix?: MixResult;
 
   queue: IngredientType[][] = [];
+  processed: number = 0;
   isProcessing: boolean = false;
+
+  startTime: number = 0;
+  timeElapsed: number = 0;
 
   constructor() {
     const interval = setInterval(() => {
@@ -88,10 +92,12 @@ export class OptimiserPageComponent {
         if (current) {
           this.processIngredientList(current);
           numberProcessed += 1;
+          this.processed += 1;
+          this.timeElapsed = Number(((new Date().getTime() - this.startTime)/1000).toFixed(0));
         }
       }
       this.isProcessing = false;
-    }, 10)
+    }, 0.0001)
   }
 
   /**
@@ -105,10 +111,15 @@ export class OptimiserPageComponent {
     this.leastIngredientsMix = undefined;
 
     // Populate the queue
+    this.processed = 0;
+    this.startTime = new Date().getTime();
+    this.timeElapsed = 0;
     this.queue = [];
     for (let ingredient of this.ingredientTypes) {
       this.queue.push([ingredient])
     }
+
+    this.startTime = new Date().getTime();
   }
 
   /**
@@ -146,7 +157,11 @@ export class OptimiserPageComponent {
     // Append all branches to the queue (if the max ingredient count hasn't been reached)
     if (ingredientTypes.length < this.form.controls.maxIngredientCount.value) {
       for (let ingredient of this.ingredientTypes) {
-        this.queue.push([...ingredientTypes, ingredient]);
+        // If the ingredient is about to be added a third time in a row, don't add this to the queue.
+        const isIngredientRepeated = ingredientTypes.length >= 2 && ingredientTypes[ingredientTypes.length - 1] === ingredient && ingredientTypes[ingredientTypes.length - 2] === ingredient;
+        if(!isIngredientRepeated) {
+          this.queue.push([...ingredientTypes, ingredient]);
+        }
       }
     }
   }
