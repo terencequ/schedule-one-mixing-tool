@@ -3,7 +3,7 @@
     <h3>Starting Product</h3>
     <div class="products__selection">
       <button mat-flat-button *ngFor="let product of products"
-              [disabled]="form.controls.productType.value === product.id"
+              [disabled]="form.controls.productType.value === product.id || queue.length > 0"
               (click)="form.controls.productType.setValue(product.id)">{{ product.name }}
       </button>
     </div>
@@ -15,6 +15,7 @@
         *ngFor="let effect of effects"
         [checked]="isEffectEnabled(effect)"
         (change)="setEffect(effect, $event.checked)"
+        [disabled]="queue.length > 0"
       >
         <effect-chip [effectType]="effect.id" [includeMultiplier]="true"></effect-chip>
       </mat-checkbox>
@@ -24,17 +25,19 @@
   <div class="slider">
     <h3>Max Ingredient Count</h3>
     <mat-slider min="1" max="12" step="1" discrete>
-      <input matSliderThumb value="1" (valueChange)="form.controls.maxIngredientCount.setValue($event)">
+      <input matSliderThumb [value]="form.controls.maxIngredientCount.value" (valueChange)="form.controls.maxIngredientCount.setValue($event)" [disabled]="queue.length > 0">
     </mat-slider>
   </div>
+
   <div class="actions">
-    <button mat-stroked-button (click)="onStart()">Start</button>
-    <button mat-stroked-button (click)="onStop()">Stop</button>
+    <button mat-stroked-button (click)="onStart()" [disabled]="queue.length > 0">Start</button>
+    <button mat-stroked-button (click)="onStop()" [disabled]="queue.length === 0">Stop</button>
   </div>
   <div>
     <p>Queue size: {{queue.length}}</p>
     <p>Mixes processed: {{processed}}</p>
-    <p>Time elapsed: {{timeElapsed}} seconds</p>
+    <p>Time elapsed: {{timeElapsed.toFixed(0)}} seconds</p>
+    <p>Average mixes per second: {{(timeElapsed === 0 ? 0 : processed / timeElapsed).toFixed(0)}} mixes per second</p>
   </div>
   <mat-tab-group class="results">
     <mat-tab label="Most Profit">

@@ -28,7 +28,7 @@ import {EffectChipComponent} from '../../components/effect-chip/effect-chip.comp
     MatSlider,
     MatSliderThumb,
     MatCheckbox,
-    EffectChipComponent
+    EffectChipComponent,
   ],
   templateUrl: './optimiser-page.component.html',
   styleUrl: './optimiser-page.component.scss'
@@ -93,7 +93,7 @@ export class OptimiserPageComponent {
           this.processIngredientList(current);
           numberProcessed += 1;
           this.processed += 1;
-          this.timeElapsed = Number(((new Date().getTime() - this.startTime)/1000).toFixed(0));
+          this.timeElapsed = Number(((new Date().getTime() - this.startTime)/1000));
         }
       }
       this.isProcessing = false;
