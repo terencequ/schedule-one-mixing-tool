@@ -1,4 +1,9 @@
 <div class="main" *ngIf="mixResult">
+  <h3>Ingredients</h3>
+  <div class="ingredients">
+    <p>{{ ingredientsList }}</p>
+  </div>
+
   <h3>Effects</h3>
   <p *ngIf="mixResult.effects.length === 0">No additional effects.</p>
   <mat-card *ngIf="mixResult.effects.length !== 0">

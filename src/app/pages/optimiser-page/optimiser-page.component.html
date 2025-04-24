@@ -8,8 +8,31 @@
       </button>
     </div>
   </div>
+  <div class="effects">
+    <h3>Target Effects</h3>
+    <div class="effects__selection">
+      <mat-checkbox
+        *ngFor="let effect of effects"
+        [checked]="isEffectEnabled(effect)"
+        (change)="setEffect(effect, $event.checked)"
+      >
+        <effect-chip [effectType]="effect.id" [includeMultiplier]="true"></effect-chip>
+      </mat-checkbox>
+    </div>
+
+  </div>
+  <div class="slider">
+    <h3>Max Ingredient Count</h3>
+    <mat-slider min="1" max="12" step="1" discrete>
+      <input matSliderThumb value="1" (valueChange)="form.controls.maxIngredientCount.setValue($event)">
+    </mat-slider>
+  </div>
   <div class="actions">
     <button mat-stroked-button (click)="onStart()">Start</button>
+    <button mat-stroked-button (click)="onStop()">Stop</button>
+  </div>
+  <div>
+    <p>Queue size: {{queue.length}}</p>
   </div>
   <mat-tab-group class="results">
     <mat-tab label="Most Profit">

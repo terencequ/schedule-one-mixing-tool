@@ -19,4 +19,8 @@ import {EffectChipComponent} from '../effect-chip/effect-chip.component';
 export class MixResultComponent {
   @Input()
   mixResult?: MixResult;
+
+  get ingredientsList(){
+    return this.mixResult?.ingredients.map(i => i.name).join(' > ') ?? "";
+  }
 }

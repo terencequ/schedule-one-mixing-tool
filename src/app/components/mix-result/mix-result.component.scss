@@ -7,6 +7,11 @@
   }
 }
 
+.ingredients {
+  display: flex;
+  gap: 8px;
+}
+
 .totals {
   &__total {
     display: flex;

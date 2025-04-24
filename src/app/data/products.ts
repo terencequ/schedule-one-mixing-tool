@@ -1,4 +1,4 @@
-import {Product} from '../models/product';
+import {Product, ProductWithId} from '../models/product';
 import {EffectType} from '../models/effect-type';
 import {ProductType} from '../models/product-type';
 
@@ -35,7 +35,7 @@ export const ProductsDictionary: { [key in ProductType]: Product } = {
   },
 }
 
-export function getProducts() {
+export function getProducts(): ProductWithId[] {
   const productTypes = Object.keys(ProductsDictionary);
   return productTypes.map(typeStr => {
     const type = Number(typeStr) as ProductType;

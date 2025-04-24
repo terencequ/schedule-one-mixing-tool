@@ -10,6 +10,12 @@ import {calculateEffectsAndPrice} from '../../helpers/mix-helper';
 import {MixResult} from '../../models/mix-result';
 import {MixResultComponent} from '../../components/mix-result/mix-result.component';
 import {MatTab, MatTabGroup} from '@angular/material/tabs';
+import {MatSlider, MatSliderThumb} from '@angular/material/slider';
+import {EffectType} from '../../models/effect-type';
+import {Effects} from '../../data/effects';
+import {EffectWithId} from '../../models/effect';
+import {MatCheckbox} from '@angular/material/checkbox';
+import {EffectChipComponent} from '../../components/effect-chip/effect-chip.component';
 
 @Component({
   selector: 'optimiser-page',
@@ -18,7 +24,11 @@ import {MatTab, MatTabGroup} from '@angular/material/tabs';
     NgForOf,
     MixResultComponent,
     MatTabGroup,
-    MatTab
+    MatTab,
+    MatSlider,
+    MatSliderThumb,
+    MatCheckbox,
+    EffectChipComponent
   ],
   templateUrl: './optimiser-page.component.html',
   styleUrl: './optimiser-page.component.scss'
@@ -26,12 +36,20 @@ import {MatTab, MatTabGroup} from '@angular/material/tabs';
 export class OptimiserPageComponent {
 
   products = Products;
+  effects = Effects;
 
   ingredientTypes: IngredientType[] = Ingredients.map(i => i.id);
 
   form = new FormGroup({
-    productType: new FormControl<ProductType>(ProductType.OGKush, {nonNullable: true, validators: [Validators.required]}),
-    maxIngredientCount: new FormControl<number>(4, {nonNullable: true, validators: [Validators.required, Validators.min(1)]}),
+    productType: new FormControl<ProductType>(ProductType.OGKush, {
+      nonNullable: true,
+      validators: [Validators.required]
+    }),
+    maxIngredientCount: new FormControl<number>(4, {
+      nonNullable: true,
+      validators: [Validators.required, Validators.min(1)]
+    }),
+    effects: new FormControl<EffectType[]>([], {nonNullable: true}),
   })
 
   /**
@@ -54,7 +72,26 @@ export class OptimiserPageComponent {
    */
   leastIngredientsMix?: MixResult;
 
+  queue: IngredientType[][] = [];
+  isProcessing: boolean = false;
+
   constructor() {
+    const interval = setInterval(() => {
+      if(this.isProcessing){
+        return;
+      }
+
+      this.isProcessing = true;
+      let numberProcessed = 0;
+      while (numberProcessed <= 1000 && this.queue.length > 0) {
+        const current = this.queue.pop();
+        if (current) {
+          this.processIngredientList(current);
+          numberProcessed += 1;
+        }
+      }
+      this.isProcessing = false;
+    }, 10)
   }
 
   /**
@@ -67,46 +104,64 @@ export class OptimiserPageComponent {
     this.leastCostMix = undefined;
     this.leastIngredientsMix = undefined;
 
-    // Start the queue
-    const queue: IngredientType[][] = [];
-    for(let ingredient of this.ingredientTypes){
-      queue.push([ingredient])
-    }
-
-    while(queue.length > 0){
-      const current = queue.pop();
-      if(current){
-        this.processIngredientList(current, queue);
-      }
+    // Populate the queue
+    this.queue = [];
+    for (let ingredient of this.ingredientTypes) {
+      this.queue.push([ingredient])
     }
   }
 
-  processIngredientList(ingredientTypes: IngredientType[], queue: IngredientType[][]) {
+  /**
+   * Stop the optimisation process.
+   */
+  onStop() {
+    this.queue = [];
+  }
+
+  processIngredientList(ingredientTypes: IngredientType[]) {
     // Calculate mix
     const productType = this.form.controls.productType.value;
     const product = {id: productType, ...ProductsDictionary[productType]};
     const ingredients = ingredientTypes.map(ingredientType => ({id: ingredientType, ...IngredientsDictionary[ingredientType]}));
     const res = calculateEffectsAndPrice(product, ingredients);
 
-    // Update best-in-category for all categories
-    if(!this.mostProfitMix || res.totalProfit > this.mostProfitMix.totalProfit){
-      this.mostProfitMix = res;
-    }
-    if(!this.mostRevenueMix || res.totalRevenue > this.mostRevenueMix.totalRevenue){
-      this.mostRevenueMix = res;
-    }
-    if(!this.leastCostMix || res.totalCost < this.leastCostMix.totalCost){
-      this.leastCostMix = res;
-    }
-    if(!this.leastIngredientsMix || res.ingredients.length < this.leastIngredientsMix.ingredients.length){
-      this.leastIngredientsMix = res;
+    // Only update best-in-category if the effects match.
+    const effectsMatch = !this.form.controls.effects.value.some(type => !res.effects.some(e => e.id === type));
+    if(effectsMatch){
+      // Update best-in-category for all categories
+      if (!this.mostProfitMix || res.totalProfit > this.mostProfitMix.totalProfit) {
+        this.mostProfitMix = res;
+      }
+      if (!this.mostRevenueMix || res.totalRevenue > this.mostRevenueMix.totalRevenue) {
+        this.mostRevenueMix = res;
+      }
+      if (!this.leastCostMix || res.totalCost < this.leastCostMix.totalCost) {
+        this.leastCostMix = res;
+      }
+      if (!this.leastIngredientsMix || res.ingredients.length < this.leastIngredientsMix.ingredients.length) {
+        this.leastIngredientsMix = res;
+      }
     }
 
     // Append all branches to the queue (if the max ingredient count hasn't been reached)
     if (ingredientTypes.length < this.form.controls.maxIngredientCount.value) {
       for (let ingredient of this.ingredientTypes) {
-        queue.push([...ingredientTypes, ingredient]);
+        this.queue.push([...ingredientTypes, ingredient]);
       }
+    }
+  }
+
+  isEffectEnabled(effect: EffectWithId) {
+    return this.form.controls.effects.value.some(e => e === effect.id);
+  }
+
+  setEffect(effect: EffectWithId, checked: boolean) {
+    const isEffectEnabled = this.isEffectEnabled(effect);
+    if(checked && !isEffectEnabled){
+      this.form.controls.effects.value.push(effect.id);
+    }
+    if(!checked && isEffectEnabled){
+      this.form.controls.effects.setValue(this.form.controls.effects.value.filter(e => e !== effect.id));
     }
   }
 }
