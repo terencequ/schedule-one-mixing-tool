@@ -87,7 +87,7 @@ export class OptimiserPageComponent {
 
       this.isProcessing = true;
       let numberProcessed = 0;
-      while (numberProcessed <= 1000 && this.queue.length > 0) {
+      while (numberProcessed <= 10000 && this.queue.length > 0) {
         const current = this.queue.pop();
         if (current) {
           this.processIngredientList(current);
@@ -97,7 +97,7 @@ export class OptimiserPageComponent {
         }
       }
       this.isProcessing = false;
-    }, 0.0001)
+    }, 0.000000001)
   }
 
   /**
@@ -157,11 +157,7 @@ export class OptimiserPageComponent {
     // Append all branches to the queue (if the max ingredient count hasn't been reached)
     if (ingredientTypes.length < this.form.controls.maxIngredientCount.value) {
       for (let ingredient of this.ingredientTypes) {
-        // If the ingredient is about to be added a third time in a row, don't add this to the queue.
-        const isIngredientRepeated = ingredientTypes.length >= 2 && ingredientTypes[ingredientTypes.length - 1] === ingredient && ingredientTypes[ingredientTypes.length - 2] === ingredient;
-        if(!isIngredientRepeated) {
-          this.queue.push([...ingredientTypes, ingredient]);
-        }
+        this.queue.push([...ingredientTypes, ingredient]);
       }
     }
   }
