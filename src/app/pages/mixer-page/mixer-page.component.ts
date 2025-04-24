@@ -84,6 +84,11 @@ export class MixerPageComponent implements OnInit {
     const mixesJson = localStorage.getItem(MIX_LOCAL_STORAGE_KEY);
     if(mixesJson) {
       this.mixes = JSON.parse(mixesJson);
+      for(const mix of this.mixes){
+        // Refresh the models
+        mix.product = Products.find(p => p.id === mix.product.id)!;
+        mix.ingredients = mix.ingredients.map(mixIngredient => Ingredients.find(i => i.id === mixIngredient.id)!);
+      }
     }
   }
 

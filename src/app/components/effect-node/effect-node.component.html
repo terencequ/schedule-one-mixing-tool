@@ -1,5 +1,5 @@
 <div class="main">
-  <mat-expansion-panel *ngFor="let effectTransformer of effectIngredientTransformers" (opened)="isExpanded = true" (closed)="isExpanded = false">
+  <mat-expansion-panel *ngFor="let effectTransformer of effectIngredientTransformers" [disabled]="mode === 'from'" (opened)="isExpanded = true" (closed)="isExpanded = false">
     <mat-expansion-panel-header style="height: auto">
       <div class="transformer">
         <p>{{mode === 'to' ? 'From' : 'For'}}</p>
