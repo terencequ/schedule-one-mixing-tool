@@ -15,13 +15,20 @@ import {getEffectTransformerDictionaryAsArray} from './effect-transformer-helper
 export function calculateEffectsAndPrice(product: ProductWithId, ingredients: IngredientWithId[]): MixResult {
   let effects = product.startingEffects.map(e => ({...EffectsDictionary[e], id: e}));
   for (let ingredient of ingredients) {
+    const transformations: {index: number, newEffectType: EffectType}[] = [];
+
     // Run transformers
     const effectTransformers = getEffectTransformerDictionaryAsArray(ingredient.effectTransformers);
     for(const transformer of effectTransformers){
-      const existingEffectIndex = effects.findIndex(e => e.id === transformer.from);
-      if(effects.findIndex(effect => effect.id === transformer.to) === -1) {
-        effects[existingEffectIndex] = {id: transformer.to, ...EffectsDictionary[transformer.from]};
+      const effectIndex = effects.findIndex(e => e.id === transformer.from);
+      const existingToEffectIndex = effects.findIndex(e => e.id === transformer.to);
+      const effectAlreadyExists = existingToEffectIndex !== -1 && !transformations.find(t => t.index === existingToEffectIndex);
+      if(effectIndex !== -1 && !effectAlreadyExists) {
+        transformations.push({index: effectIndex, newEffectType: transformer.to});
       }
+    }
+    for(let transformation of transformations){
+      effects[transformation.index] = {id: transformation.newEffectType, ...EffectsDictionary[transformation.newEffectType]};
     }
 
     // Attempt to add the ingredient's main effect
