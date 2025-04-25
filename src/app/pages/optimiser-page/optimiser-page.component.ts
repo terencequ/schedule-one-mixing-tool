@@ -157,7 +157,20 @@ export class OptimiserPageComponent {
     // Append all branches to the queue (if the max ingredient count hasn't been reached)
     if (ingredientTypes.length < this.form.controls.maxIngredientCount.value) {
       for (let ingredient of this.ingredientTypes) {
-        this.queue.push([...ingredientTypes, ingredient]);
+        // Check how many repeated ingredients there are.
+        let numOfRepeats = 0;
+        for(let i = ingredientTypes.length - 1; i >= 0; i--) {
+          if(ingredientTypes[i] == ingredient){
+            numOfRepeats += 1;
+          } else {
+            break;
+          }
+        }
+
+        const redundantRepeats = (ingredient === IngredientType.Donut && numOfRepeats >= 2) || (ingredient !== IngredientType.Donut && numOfRepeats >= 1);
+        if (!redundantRepeats) {
+          this.queue.push([...ingredientTypes, ingredient]);
+        }
       }
     }
   }
