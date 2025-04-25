@@ -87,7 +87,7 @@ export class OptimiserPageComponent {
 
       this.isProcessing = true;
       let numberProcessed = 0;
-      while (numberProcessed <= 10000 && this.queue.length > 0) {
+      while (numberProcessed <= 1000 && this.queue.length > 0) {
         const current = this.queue.pop();
         if (current) {
           this.processIngredientList(current);
