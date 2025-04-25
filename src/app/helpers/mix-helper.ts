@@ -3,6 +3,7 @@ import {IngredientWithId} from '../models/ingredient';
 import {EffectsDictionary} from '../data/effects';
 import {EffectWithId} from '../models/effect';
 import {MixResult} from '../models/mix-result';
+import {EffectType} from '../models/effect-type';
 
 /**
  * Calculate an effects list based on a starting product and a list of ingredients.
@@ -17,7 +18,7 @@ export function calculateEffectsAndPrice(product: ProductWithId, ingredients: In
     for(const effect of effects){
       // If an effect needs to be transformed, transform and add to the new list
       const effectResult = ingredient.effectTransformers[effect.id]
-      if(effectResult && !effects.some(e => e.id === effectResult)){
+      if(effectResult !== undefined && !effects.some(e => e.id === effectResult)){
         newEffectList.push({id: effectResult, ...EffectsDictionary[effectResult]});
       } else {
         newEffectList.push(effect);
