@@ -4,6 +4,7 @@ import {EffectsDictionary} from '../data/effects';
 import {EffectWithId} from '../models/effect';
 import {MixResult} from '../models/mix-result';
 import {EffectType} from '../models/effect-type';
+import {getEffectTransformerDictionaryAsArray} from './effect-transformer-helper';
 
 /**
  * Calculate an effects list based on a starting product and a list of ingredients.
@@ -14,17 +15,14 @@ import {EffectType} from '../models/effect-type';
 export function calculateEffectsAndPrice(product: ProductWithId, ingredients: IngredientWithId[]): MixResult {
   let effects = product.startingEffects.map(e => ({...EffectsDictionary[e], id: e}));
   for (let ingredient of ingredients) {
-    let newEffectList: EffectWithId[] = [];
-    for(const effect of effects){
-      // If an effect needs to be transformed, transform and add to the new list
-      const effectResult = ingredient.effectTransformers[effect.id]
-      if(effectResult !== undefined && !effects.some(e => e.id === effectResult)){
-        newEffectList.push({id: effectResult, ...EffectsDictionary[effectResult]});
-      } else {
-        newEffectList.push(effect);
+    // Run transformers
+    const effectTransformers = getEffectTransformerDictionaryAsArray(ingredient.effectTransformers);
+    for(const transformer of effectTransformers){
+      const existingEffectIndex = effects.findIndex(e => e.id === transformer.from);
+      if(effects.findIndex(effect => effect.id === transformer.to) === -1) {
+        effects[existingEffectIndex] = {id: transformer.to, ...EffectsDictionary[transformer.from]};
       }
     }
-    effects = newEffectList;
 
     // Attempt to add the ingredient's main effect
     if (effects.length < 8 && !effects.some(e => e.id === ingredient.effect)) {
